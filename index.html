@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zaawansowany Kalkulator Budżetu Domowego</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            border: none;
+            background: #f5f5f5;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            min-width: 150px;
+        }
+
+        .tab-btn:hover {
+            background: #efefef;
+        }
+
+        .tab-btn.active {
+            background: white;
+            border-bottom-color: #667eea;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            margin-left: 10px;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 10px 20px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-danger:hover {
+            box-shadow: 0 10px 20px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .btn-success:hover {
+            box-shadow: 0 10px 20px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-info {
+            background: #17a2b8;
+        }
+
+        .btn-info:hover {
+            box-shadow: 0 10px 20px rgba(23, 162, 184, 0.3);
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 0.9em;
+            margin: 0 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:hover {
+            background: #f9f9f9;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-danger {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 0.9em;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .stat-card.income {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stat-card.expense {
+            background: linear-gradient(135deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .stat-card.budget {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .stat-card.balance {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 12px;
+        }
+
+        .chart-container canvas {
+            max-height: 400px;
+        }
+
+        .category-budget-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .category-budget-item .progress {
+            flex: 1;
+            height: 25px;
+            background: #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .category-budget-item .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .progress-bar.warning {
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        .progress-bar.danger {
+            background: linear-gradient(90deg, #ee0979 0%, #ff6a00 100%);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .badge-income {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-expense {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-monthly {
+            background: #cfe2ff;
+            color: #084298;
+        }
+
+        .badge-quarterly {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .badge-yearly {
+            background: #e0c3fc;
+            color: #5a0d7a;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-danger {
+            color: #dc3545;
+        }
+
+        .text-success {
+            color: #28a745;
+        }
+
+        .text-warning {
+            color: #ffc107;
+        }
+
+        .text-muted {
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .form-row, .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .tabs {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                min-width: 120px;
+                padding: 12px 15px;
+            }
+
+            table {
+                font-size: 0.9em;
+            }
+
+            td, th {
+                padding: 10px;
+            }
+        }
+
+        .filter-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+            border-bottom: 1px dotted #667eea;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 0.85em;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Kalkulator Budżetu Domowego</h1>
+            <p>Zarządzaj swoimi finansami inteligentnie</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('dashboard')">📊 Dashboard</button>
+            <button class="tab-btn" onclick="switchTab('add-transaction')">➕ Dodaj Transakcję</button>
+            <button class="tab-btn" onclick="switchTab('transactions')">📝 Transakcje</button>
+            <button class="tab-btn" onclick="switchTab('categories')">🏷️ Kategorie</button>
+            <button class="tab-btn" onclick="switchTab('budgets')">💼 Budżety</button>
+            <button class="tab-btn" onclick="switchTab('reports')">📈 Raporty</button>
+            <button class="tab-btn" onclick="switchTab('settings')">⚙️ Ustawienia</button>
+        </div>
+
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard" class="tab-content active">
+            <div id="dashboardAlert" class="alert"></div>
+
+            <div class="stats-grid">
+                <div class="stat-card income">
+                    <h3>Przychody</h3>
+                    <div class="value" id="totalIncome">0,00 zł</div>
+                </div>
+                <div class="stat-card expense">
+                    <h3>Wydatki</h3>
+                    <div class="value" id="totalExpense">0,00 zł</div>
+                </div>
+                <div class="stat-card budget">
+                    <h3>Budżet Całkowity</h3>
+                    <div class="value" id="totalBudget">0,00 zł</div>
+                </div>
+                <div class="stat-card balance">
+                    <h3>Saldo</h3>
+                    <div class="value" id="balance">0,00 zł</div>
+                </div>
+            </div>
+
+            <div class="filter-section">
+                <div class="form-group">
+                    <label>Okres analizy:</label>
+                    <select id="dashboardPeriod" onchange="updateDashboard()">
+                        <option value="1">1 miesiąc</option>
+                        <option value="2">2 miesiące</option>
+                        <option value="3">3 miesiące</option>
+                        <option value="6">6 miesięcy</option>
+                        <option value="12">12 miesięcy</option>
+                        <option value="all">Cały rok</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h3>Wydatki po Kategoriach</h3>
+                <canvas id="expenseChart" width="400" height="200"></canvas>
+            </div>
+
+            <div class="chart-container">
+                <h3>Przychody vs Wydatki</h3>
+                <canvas id="incomeExpenseChart" width="400" height="200"></canvas>
+            </div>
+
+            <h3 style="margin-top: 30px; margin-bottom: 20px;">Status Budżetów po Kategoriach</h3>
+            <div id="budgetStatus"></div>
+        </div>
+
+        <!-- ADD TRANSACTION TAB -->
+        <div id="add-transaction" class="tab-content">
+            <div id="addTransactionAlert" class="alert"></div>
+
+            <form id="transactionForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="transType">Typ Transakcji:</label>
+                        <select id="transType" required onchange="updateCategoriesList()">
+                            <option value="income">Przychód</option>
+                            <option value="expense">Wydatek</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transCategory">Kategoria:</label>
+                        <select id="transCategory" required>
+                            <option value="">Wybierz kategorię</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="transAmount">Kwota (zł):</label>
+                        <input type="number" id="transAmount" step="0.01" min="0" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="transDate">Data:</label>
+                        <input type="date" id="transDate" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="transPeriodicity">Okresowość:</label>
+                        <select id="transPeriodicity" required>
+                            <option value="1">Jednorazowo</option>
+                            <option value="1-month">1 miesiąc</option>
+                            <option value="2-months">2 miesiące</option>
+                            <option value="3-months">3 miesiące</option>
+                            <option value="4-months">4 miesiące</option>
+                            <option value="5-months">5 miesięcy</option>
+                            <option value="6-months">6 miesięcy</option>
+                            <option value="7-months">7 miesięcy</option>
+                            <option value="8-months">8 miesięcy</option>
+                            <option value="9-months">9 miesięcy</option>
+                            <option value="10-months">10 miesięcy</option>
+                            <option value="11-months">11 miesięcy</option>
+                            <option value="12-months">Cały rok</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transDescription">Opis:</label>
+                        <input type="text" id="transDescription" placeholder="np. Wynajem mieszkania">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="transNotes">Notatki:</label>
+                    <textarea id="transNotes" rows="3" placeholder="Dodatkowe uwagi..."></textarea>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn-success">✓ Dodaj Transakcję</button>
+                    <button type="button" class="btn-secondary" onclick="resetTransactionForm()">↻ Wyczyść</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- TRANSACTIONS TAB -->
+        <div id="transactions" class="tab-content">
+            <div id="transactionsAlert" class="alert"></div>
+
+            <div class="filter-section">
+                <div class="form-group">
+                    <label>Typ:</label>
+                    <select id="filterType" onchange="filterTransactions()">
+                        <option value="">Wszystkie</option>
+                        <option value="income">Przychody</option>
+                        <option value="expense">Wydatki</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Kategoria:</label>
+                    <select id="filterCategory" onchange="filterTransactions()">
+                        <option value="">Wszystkie</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Od daty:</label>
+                    <input type="date" id="filterFromDate" onchange="filterTransactions()">
+                </div>
+                <div class="form-group">
+                    <label>Do daty:</label>
+                    <input type="date" id="filterToDate" onchange="filterTransactions()">
+                </div>
+                <div class="form-group">
+                    <button onclick="filterTransactions()" class="btn-info">🔍 Szukaj</button>
+                    <button onclick="resetFilters()" class="btn-secondary">↻ Reset</button>
+                </div>
+            </div>
+
+            <table id="transactionsTable">
+                <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Typ</th>
+                        <th>Kategoria</th>
+                        <th>Opis</th>
+                        <th>Kwota</th>
+                        <th>Okresowość</th>
+                        <th>Akcje</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <!-- CATEGORIES TAB -->
+        <div id="categories" class="tab-content">
+            <div id="categoriesAlert" class="alert"></div>
+
+            <div style="margin-bottom: 30px;">
+                <h3>Dodaj Nową Kategorię</h3>
+                <div class="form-row-3" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label for="newCategoryName">Nazwa kategorii:</label>
+                        <input type="text" id="newCategoryName" placeholder="np. Żywność">
+                    </div>
+                    <div class="form-group">
+                        <label for="newCategoryType">Typ:</label>
+                        <select id="newCategoryType">
+                            <option value="income">Przychód</option>
+                            <option value="expense">Wydatek</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="newCategoryColor">Kolor:</label>
+                        <input type="color" id="newCategoryColor" value="#667eea">
+                    </div>
+                </div>
+                <button onclick="addCategory()" class="btn-success" style="margin-top: 10px;">➕ Dodaj Kategorię</button>
+            </div>
+
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #ddd;">
+
+            <h3>Istniejące Kategorie</h3>
+            <div id="categoriesList" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- BUDGETS TAB -->
+        <div id="budgets" class="tab-content">
+            <div id="budgetsAlert" class="alert"></div>
+
+            <div style="margin-bottom: 30px;">
+                <h3>Ustaw Budżet na Kategorię</h3>
+                <div class="form-row-3" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label for="budgetCategory">Kategoria:</label>
+                        <select id="budgetCategory" required>
+                            <option value="">Wybierz kategorię wydatków</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="budgetAmount">Limit Budżetu (zł):</label>
+                        <input type="number" id="budgetAmount" step="0.01" min="0" required placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                        <label for="budgetPeriod">Okres:</label>
+                        <select id="budgetPeriod" required>
+                            <option value="monthly">Miesięczny</option>
+                            <option value="quarterly">Kwartalny (3 miesiące)</option>
+                            <option value="yearly">Roczny (12 miesięcy)</option>
+                        </select>
+                    </div>
+                </div>
+                <button onclick="addBudget()" class="btn-success" style="margin-top: 10px;">➕ Ustaw Budżet</button>
+            </div>
+
+            <hr style="margin: 30px 0; border: none; border-top: 2px solid #ddd;">
+
+            <h3>Aktywne Budżety</h3>
+            <div id="budgetsList" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- REPORTS TAB -->
+        <div id="reports" class="tab-content">
+            <div id="reportsAlert" class="alert"></div>
+
+            <div class="filter-section">
+                <div class="form-group">
+                    <label>Okres raportu:</label>
+                    <select id="reportPeriod" onchange="generateReport()">
+                        <option value="1">1 miesiąc</option>
+                        <option value="2">2 miesiące</option>
+                        <option value="3">3 miesiące</option>
+                        <option value="6">6 miesięcy</option>
+                        <option value="12">12 miesięcy</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button onclick="exportToCSV()" class="btn-info">📥 Pobierz CSV</button>
+                    <button onclick="exportToPDF()" class="btn-info">📄 Pobierz PDF</button>
+                </div>
+            </div>
+
+            <div id="reportContent"></div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div id="settings" class="tab-content">
+            <div id="settingsAlert" class="alert"></div>
+
+            <h3>Zarządzanie Danymi</h3>
+            <div style="margin-top: 20px;">
+                <h4>Importuj dane z CSV</h4>
+                <div class="form-group">
+                    <input type="file" id="csvFile" accept=".csv" style="padding: 20px; border: 2px dashed #667eea;">
+                </div>
+                <button onclick="importCSV()" class="btn-info" style="margin-bottom: 20px;">📤 Importuj CSV</button>
+
+                <h4 style="margin-top: 30px;">Eksportuj dane</h4>
+                <button onclick="downloadCSV()" class="btn-info" style="margin-right: 10px;">📥 Pobierz CSV</button>
+
+                <h4 style="margin-top: 30px;">Opcje dodatkowe</h4>
+                <button onclick="resetAllData()" class="btn-danger">🗑️ Usuń wszystkie dane</button>
+                <p style="color: #999; margin-top: 10px; font-size: 0.9em;">⚠️ Tej operacji nie można cofnąć!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT TRANSACTION MODAL -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>Edytuj Transakcję</span>
+                <button class="close-btn" onclick="closeEditModal()">✕</button>
+            </div>
+            <form id="editTransactionForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTransType">Typ Transakcji:</label>
+                        <select id="editTransType" required>
+                            <option value="income">Przychód</option>
+                            <option value="expense">Wydatek</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTransCategory">Kategoria:</label>
+                        <select id="editTransCategory" required></select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTransAmount">Kwota (zł):</label>
+                        <input type="number" id="editTransAmount" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTransDate">Data:</label>
+                        <input type="date" id="editTransDate" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="editTransPeriodicity">Okresowość:</label>
+                        <select id="editTransPeriodicity" required>
+                            <option value="1">Jednorazowo</option>
+                            <option value="1-month">1 miesiąc</option>
+                            <option value="2-months">2 miesiące</option>
+                            <option value="3-months">3 miesiące</option>
+                            <option value="4-months">4 miesiące</option>
+                            <option value="5-months">5 miesięcy</option>
+                            <option value="6-months">6 miesięcy</option>
+                            <option value="7-months">7 miesięcy</option>
+                            <option value="8-months">8 miesięcy</option>
+                            <option value="9-months">9 miesięcy</option>
+                            <option value="10-months">10 miesięcy</option>
+                            <option value="11-months">11 miesięcy</option>
+                            <option value="12-months">Cały rok</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editTransDescription">Opis:</label>
+                        <input type="text" id="editTransDescription">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="editTransNotes">Notatki:</label>
+                    <textarea id="editTransNotes" rows="3"></textarea>
+                </div>
+
+                <div>
+                    <button type="submit" class="btn-success">✓ Zapisz Zmiany</button>
+                    <button type="button" class="btn-danger btn-small" onclick="deleteTransaction()">🗑️ Usuń</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
