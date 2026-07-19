@@ -268,7 +268,7 @@ function displayTransactions() {
             </td>
             <td>
                 <button onclick="openEditModal(${trans.id})" class="btn-info btn-small">✏️</button>
-                <button onclick="deleteTransaction(${trans.id})" class="btn-danger btn-small">🗑️</button>
+                <button onclick="deleteTransactionDirect(${trans.id})" class="btn-danger btn-small">🗑️</button>
             </td>
         </tr>
     `).join('');
@@ -376,6 +376,16 @@ function deleteTransaction(id = null) {
         transactions = transactions.filter(t => t.id !== transId);
         saveData();
         closeEditModal();
+        displayTransactions();
+        updateDashboard();
+        showAlert('transactionsAlert', '✓ Transakcja usunięta!', 'success');
+    }
+}
+
+function deleteTransactionDirect(id) {
+    if (confirm('Czy na pewno chcesz usunąć tę transakcję?')) {
+        transactions = transactions.filter(t => t.id !== id);
+        saveData();
         displayTransactions();
         updateDashboard();
         showAlert('transactionsAlert', '✓ Transakcja usunięta!', 'success');
